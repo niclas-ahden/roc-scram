@@ -9,6 +9,11 @@ See the documentation at [https://niclas-ahden.github.io/roc-scram/](https://nic
 ## Usage
 
 ```roc
+app [main!] {
+    pf: platform "https://github.com/roc-lang/basic-cli/releases/download/0.23.0/GNN5tt2gKdX4dhawg4915C4YB193woHFdcCkz31fhGxv.tar.zst",
+    scram: "https://github.com/niclas-ahden/roc-scram/releases/download/0.1.0/5LZNjdSHw4qQtdQcfLy6P5B7dCA9gqa1c16TUZDA6gSz.tar.zst",
+}
+
 import scram.Scram
 
 binding = Scram.select({
