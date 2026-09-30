@@ -1,0 +1,11 @@
+# Ignore generated binaries (with no extension) by default
+*
+!*.*
+!*/
+
+.direnv/
+.envrc
+generated-docs/
+
+# The catch-alls above ignore extensionless files, but this one must ship
+!LICENSE
