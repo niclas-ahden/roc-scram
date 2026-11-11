@@ -10,7 +10,7 @@ See the documentation at [https://niclas-ahden.github.io/roc-scram/](https://nic
 
 ```roc
 app [main!] {
-    pf: platform "https://github.com/roc-lang/basic-cli/releases/download/0.26.0/GddgvsGjiNXrHFW6au5i5dUDbTs8FinQdrgE2Gqmw53t.tar.zst",
+    pf: platform "https://github.com/roc-lang/basic-cli/releases/download/0.28.0/2yhxoR7cZPSYbyUzPWULFw8AA6QEcdsgFNRmzu7pZbst.tar.zst",
     scram: "https://github.com/niclas-ahden/roc-scram/releases/download/0.1.1/8Fc5qLzjq53oQ5NZxvE2PBUyVUeULCnFHA8t3vH4BwrU.tar.zst",
 }
 
