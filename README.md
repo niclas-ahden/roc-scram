@@ -10,8 +10,8 @@ See the documentation at [https://niclas-ahden.github.io/roc-scram/](https://nic
 
 ```roc
 app [main!] {
-    pf: platform "https://github.com/roc-lang/basic-cli/releases/download/0.28.0/2yhxoR7cZPSYbyUzPWULFw8AA6QEcdsgFNRmzu7pZbst.tar.zst",
-    scram: "https://github.com/niclas-ahden/roc-scram/releases/download/0.1.1/8Fc5qLzjq53oQ5NZxvE2PBUyVUeULCnFHA8t3vH4BwrU.tar.zst",
+    pf: platform "https://github.com/roc-lang/basic-cli/releases/download/0.28.1/7brgwR8YUqfeGrkdfF1V4GPPN7DnP7ftqub9KcrTEZtr.tar.zst",
+    scram: "https://github.com/niclas-ahden/roc-scram/releases/download/0.1.2/G2nukisfV4sQUXb8fpCNEYCa8zNqt9puhD5VpmJ9L2Vs.tar.zst",
 }
 
 import scram.Scram
