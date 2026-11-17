@@ -134,54 +134,7 @@ Scram :: [].{
 		}
 
 	## An authentication waiting for the server's first message.
-	ClientFirst :: {
-		gs2_header : Str,
-		bare : Str,
-		client_nonce : Str,
-		password : List(U8),
-		binding_data : List(U8),
-		plus : Bool,
-		min_iterations : U64,
-		max_iterations : U64,
-	}.{
-
-		## The mechanism to name to the server: SCRAM-SHA-256-PLUS with
-		## `TlsServerEndPoint`, SCRAM-SHA-256 otherwise.
-		mechanism : ClientFirst -> Str
-		mechanism = |first| if first.plus Scram.mechanism_plus else Scram.mechanism
-
-		## The client-first-message to send.
-		message : ClientFirst -> Str
-		message = |first| Str.concat(first.gs2_header, first.bare)
-
-		## Read the server-first-message and work out the proof. Fails when
-		## the message is malformed, names an extension this client must
-		## understand but does not, does not extend the client's nonce, or asks
-		## for an iteration count outside the bounds `start` was given.
-		receive_server_first : ClientFirst, Str -> Try(Scram.ClientFinal, [InvalidServerFirst(Str), MandatoryExtension(Str), ServerNonceMismatch, InvalidSalt, IterationCountTooLow(U64), IterationCountTooHigh(U64)])
-		receive_server_first = |first, server_first| {
-			{ server_nonce, salt_text, iterations_text } = parse_server_first(server_first)?
-			if !server_nonce.starts_with(first.client_nonce) or server_nonce.count_utf8_bytes() <= first.client_nonce.count_utf8_bytes() {
-				Err(ServerNonceMismatch)
-			} else if !server_nonce.to_utf8().all(is_nonce_byte) {
-				Err(InvalidServerFirst("the nonce has characters outside printable ASCII"))
-			} else {
-				salt = Base64.decode(salt_text) ? |_| InvalidSalt
-				count = parse_iterations(iterations_text)?
-				if salt.is_empty() {
-					Err(InvalidSalt)
-				} else if count < first.min_iterations {
-					Err(IterationCountTooLow(count))
-				} else if count > first.max_iterations {
-					Err(IterationCountTooHigh(count))
-				} else {
-					# A count of 0 gets this far only when `min_iterations` is 0.
-					iterations = Hmac.iterations(count) ? |_| IterationCountTooLow(count)
-					Ok(prove(first, server_first, server_nonce, salt, iterations))
-				}
-			}
-		}
-	}
+	ClientFirst : ScramClientFirst
 
 	## An authentication that has its proof, waiting for the server's final
 	## message.
@@ -217,6 +170,57 @@ Scram :: [].{
 				}
 			} else {
 				Err(InvalidServerFinal("expected v= or e="))
+			}
+		}
+	}
+}
+
+# Outside Scram, so that its `mechanism` does not shadow Scram.mechanism.
+# Scram.ClientFirst is its public alias.
+ScramClientFirst :: {
+	gs2_header : Str,
+	bare : Str,
+	client_nonce : Str,
+	password : List(U8),
+	binding_data : List(U8),
+	plus : Bool,
+	min_iterations : U64,
+	max_iterations : U64,
+}.{
+
+	## The mechanism to name to the server: SCRAM-SHA-256-PLUS with
+	## `TlsServerEndPoint`, SCRAM-SHA-256 otherwise.
+	mechanism : ScramClientFirst -> Str
+	mechanism = |first| if first.plus Scram.mechanism_plus else Scram.mechanism
+
+	## The client-first-message to send.
+	message : ScramClientFirst -> Str
+	message = |first| Str.concat(first.gs2_header, first.bare)
+
+	## Read the server-first-message and work out the proof. Fails when
+	## the message is malformed, names an extension this client must
+	## understand but does not, does not extend the client's nonce, or asks
+	## for an iteration count outside the bounds `start` was given.
+	receive_server_first : ScramClientFirst, Str -> Try(Scram.ClientFinal, [InvalidServerFirst(Str), MandatoryExtension(Str), ServerNonceMismatch, InvalidSalt, IterationCountTooLow(U64), IterationCountTooHigh(U64)])
+	receive_server_first = |first, server_first| {
+		{ server_nonce, salt_text, iterations_text } = parse_server_first(server_first)?
+		if !server_nonce.starts_with(first.client_nonce) or server_nonce.count_utf8_bytes() <= first.client_nonce.count_utf8_bytes() {
+			Err(ServerNonceMismatch)
+		} else if !server_nonce.to_utf8().all(is_nonce_byte) {
+			Err(InvalidServerFirst("the nonce has characters outside printable ASCII"))
+		} else {
+			salt = Base64.decode(salt_text) ? |_| InvalidSalt
+			count = parse_iterations(iterations_text)?
+			if salt.is_empty() {
+				Err(InvalidSalt)
+			} else if count < first.min_iterations {
+				Err(IterationCountTooLow(count))
+			} else if count > first.max_iterations {
+				Err(IterationCountTooHigh(count))
+			} else {
+				# A count of 0 gets this far only when `min_iterations` is 0.
+				iterations = Hmac.iterations(count) ? |_| IterationCountTooLow(count)
+				Ok(prove(first, server_first, server_nonce, salt, iterations))
 			}
 		}
 	}
